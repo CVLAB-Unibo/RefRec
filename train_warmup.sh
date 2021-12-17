@@ -1,0 +1,1 @@
+python main.py logs/warmup_m2sc/run.yaml

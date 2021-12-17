@@ -1,0 +1,3 @@
+name: "modelnet_scannet"
+root: "data/PointDA_data_ply/modelnet_scannet"
+rotate: False

@@ -1,0 +1,1 @@
+python main_reconstruction.py logs/m_2_sc_rec/run.yaml

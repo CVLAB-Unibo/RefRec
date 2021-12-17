@@ -1,0 +1,15 @@
+data/modelnet
+data/modelnet_scannet
+data/shapenet
+data/scannet
+data/shapenet.zip
+data/modelnet.zip
+data/scannet.zip
+
+.vscode
+env
+PyTorchEMD
+logs
+wandb
+*/__pycache__
+artifacts
