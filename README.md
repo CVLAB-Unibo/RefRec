@@ -1,6 +1,8 @@
 # RefRec
 Official repository for "RefRec: Pseudo-labels Refinement via Shape Reconstruction for Unsupervised 3D Domain Adaptation"
 
+Still work in progress.
+
 python -m venv env
 pip install -r requirements.txt
 source env/bin/activate
