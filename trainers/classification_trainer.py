@@ -38,7 +38,6 @@ class Classifier(pl.LightningModule):
             if hasattr(m, 'bias'):
                 m.bias.requires_grad_(False)
             m.eval()
-            # print(m.training)
 
     def forward(self, x):
         embeddings, output = self.net(x, embeddings=True)
@@ -182,7 +181,7 @@ class Classifier(pl.LightningModule):
 
     def test_epoch_end(self, outputs):
         target_accuracy = self.valid_acc_target.compute().item()
-        self.log("final_accuracy", target_accuracy)
+        print("final_accuracy", target_accuracy)
 
     def on_save_checkpoint(self, checkpoint):
         checkpoint["best_accuracy_target"] = self.best_accuracy_target

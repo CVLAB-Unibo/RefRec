@@ -24,31 +24,31 @@ def collate_fn(list_data):
     }
 
 class DataModule(pl.LightningDataModule):
-    def __init__(self, cfg):
+    def __init__(self):
         super().__init__()
         self.files = []
 
+        print(hcfg("dataset_source"))
         self.train_ds = ClassificationDataset(
-            hcfg("dataset_source.name"),
+            hcfg("dataset_source"),
             "train",
             occlusions= hcfg("occlusions")
         )
 
-        if hcfg("dataset_hard")!= "null":
+        if hcfg("dataset_hard") != "null":
             self.train_ds_pl = ClassificationDataset(
-                hcfg("dataset_hard"),
                 hcfg("dataset_hard"),
                 "train",
             )
 
         self.val_ds_source = ClassificationDataset(
-            hcfg("dataset_source.name"),
+            hcfg("dataset_source"),
             "test",
-            short_val_split = True
+            short_val_split = hcfg("short_val_split")
         )
 
         self.val_ds_target = ClassificationDataset(
-            hcfg("dataset_target.name"),
+            hcfg("dataset_target"),
             "test"
         )
 
@@ -62,7 +62,7 @@ class DataModule(pl.LightningDataModule):
             num_workers=hcfg("num_workers"),
             collate_fn=self.collate,
             pin_memory=True,
-            drop_last=True,
+            # drop_last=True,
             worker_init_fn=worker_init_fn,
         )
         return train_dl_pl
@@ -76,7 +76,7 @@ class DataModule(pl.LightningDataModule):
             collate_fn=self.collate,
             pin_memory=True,
             worker_init_fn=worker_init_fn,
-            drop_last=True,
+            # drop_last=True,
         )
         return train_dl
 

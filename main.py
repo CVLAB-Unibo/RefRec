@@ -9,7 +9,9 @@ from hesiod import hcfg
 import sys
 
 
-@hmain(base_cfg_dir=Path("cfg"), run_cfg_file=Path(sys.argv[1]), create_out_dir=False, parse_cmd_line=False)
+run_cfg = Path(sys.argv[1])
+sys.argv=sys.argv[1:]
+@hmain(base_cfg_dir=Path("cfg"), run_cfg_file=run_cfg, create_out_dir=False, parse_cmd_line=True)
 # @hmain(base_cfg_dir=Path("cfg"), template_cfg_file=Path("cfg/template.yaml"))
 def main():
     cfg = get_cfg_copy()
@@ -33,12 +35,10 @@ def main():
         #train with mean teacher and domain-specific classifier
         from trainers.classification_trainer_DH import Classifier
 
-        # from trainers.classification_trainerMT import Classifier
-    
     from datamodules.classification_datamodule import DataModule
     from utils.callbacks import PCPredictionLogger
 
-    dm = DataModule(cfg)
+    dm = DataModule()
 
     run_name = hcfg("net.name")+"_"+hcfg("project_name")
     print(hcfg("project_name"), run_name, get_out_dir())
@@ -82,11 +82,7 @@ def main():
     model_artifact = wandb.Artifact(
         get_run_name(), type="model",
         description=hcfg("net.name"),
-        metadata={
-            "problem": "classifier",
-            "net": hcfg("net.name"), 
-            "run": get_run_name()
-            })
+        metadata=cfg)
 
     model_artifact.add_file(checkpoint_callback.best_model_path)
     run.log_artifact(model_artifact)

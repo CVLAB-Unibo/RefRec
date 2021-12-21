@@ -10,9 +10,7 @@ import numpy as np
 import wandb
 import torch.nn.functional as F
 from torch.utils.tensorboard import SummaryWriter
-if "minkowski" in hcfg("net.name"):
-    import MinkowskiEngine as ME
-
+from torchmetrics import Accuracy
 
 class Classifier(pl.LightningModule):
     def __init__(self, dm, device):
@@ -25,9 +23,9 @@ class Classifier(pl.LightningModule):
         self.best_accuracy_target = 0
         self.alpha_teacher = 0.99
         self.loss_fn = get_loss_fn()
-        self.train_acc = pl.metrics.Accuracy(compute_on_step=False)
-        self.valid_acc_source = pl.metrics.Accuracy(compute_on_step=False)
-        self.valid_acc_target = pl.metrics.Accuracy(compute_on_step=False)
+        self.train_acc = Accuracy(compute_on_step=False)
+        self.valid_acc_source = Accuracy(compute_on_step=False)
+        self.valid_acc_target = Accuracy(compute_on_step=False)
         self.save_hyperparameters(get_cfg_copy())
         self.dl_target_pl = iter(self.dm.train_dataloader_pl())
         self.loss_fn_target = nn.CrossEntropyLoss(reduction="none")
@@ -50,22 +48,21 @@ class Classifier(pl.LightningModule):
         for t, s in zip(self.ema.buffers(), self.net.buffers()):
             if not t.dtype == torch.int64:
                 t.data.mul_(alpha_teacher).add_(s.data, alpha=1 - alpha_teacher)
-    
+
+    def set_bn_eval(self, m):
+        if isinstance(m, nn.BatchNorm2d) or isinstance(m, nn.BatchNorm1d):
+            if hasattr(m, 'weight'):
+                m.weight.requires_grad_(False)
+            if hasattr(m, 'bias'):
+                m.bias.requires_grad_(False)
+            m.eval()
+
     def on_train_start(self):
         self.writer = SummaryWriter(wandb.run.dir)
-
-        def set_bn_eval(m):
-            classname = m.__class__.__name__
-            if classname.find("BatchNorm") != -1:
-                m.eval()
-
-        self.net.apply(set_bn_eval)
-        if hcfg("use_proto"):
-            project_name = hcfg("project_name")
-            # self.protoypes = np.load(f"prototypes/{project_name}_proto_perc.npy")
-            self.protoypes = np.load("prototypes/scnn2m_proto.npy")
-            self.protoypes = torch.from_numpy(self.protoypes).to(device=self.device)
-            self.protoypes = F.normalize(self.protoypes, dim=1)
+        self.net.apply(self.set_bn_eval)
+        self.protoypes = np.load(hcfg("prototypes_path"))
+        self.protoypes = torch.from_numpy(self.protoypes).to(device=self.device)
+        self.protoypes = F.normalize(self.protoypes, dim=1)
         self.create_ema_model()
 
     def sigmoid_rampup(self, current, rampup_length):
@@ -111,13 +108,12 @@ class Classifier(pl.LightningModule):
         coords_target = batch_target["coordinates"].to(self.device)
         labels_target = batch_target["labels"].to(self.device)
         self.train_acc(F.softmax(logits, dim=1), labels)
-
         with torch.no_grad():
-            embeddings_t, output_t = self.ema(coords_target, embeddings=True, target=True)
+            _, output_t = self.ema(coords_target, embeddings=True, target=True)
             _, output_source_branch_ema = self.ema(coords_target, embeddings=True, target=False)
         predictions_teacher = torch.argmax(output_t+output_source_branch_ema, dim=1)
         embeddings_s, output_s = self.net(coords_target, embeddings=True, target=True)
-        embeddings_s = F.normalize(embeddings_s.squeeze(2), dim=1)
+        embeddings_s = F.normalize(embeddings_s, dim=1)
         diff_proto = embeddings_s.unsqueeze(1).repeat(1,hcfg("num_classes"),1).detach() - self.protoypes
         norms = torch.linalg.norm(diff_proto, dim=2)
         target_weights = F.softmax(-norms, dim=1)
@@ -156,10 +152,6 @@ class Classifier(pl.LightningModule):
         feats = batch["features"]
         labels = batch["labels"]
 
-        if "minkowski" in hcfg("net.name"):
-            # coords = ME.SparseTensor(coordinates=coords, features=feats)
-            coords = ME.TensorField(coordinates=coords, features=feats)
-
         if dataloader_idx == 0:
             embeddings, predictions, loss = self.loss(coords, labels)
             self.valid_acc_source(F.softmax(predictions, dim=1), labels)
@@ -176,7 +168,6 @@ class Classifier(pl.LightningModule):
         # print("\n")
 
         valid_acc_source = self.valid_acc_source.compute().item()
-        print("SOURCE:", valid_acc_source)
         source_data = validation_step_outputs[0]
         predictions_source = np.concatenate(
             [x["predictions"][0].cpu().numpy() for x in source_data]
@@ -187,7 +178,6 @@ class Classifier(pl.LightningModule):
         avg_loss_source = np.mean([x["loss"].item() for x in source_data])
 
         valid_acc_target = self.valid_acc_target.compute().item()
-        print("TARGET:", valid_acc_target)
         target_data = validation_step_outputs[1]
         predictions_target = np.concatenate(
             [x["predictions"][0].cpu().numpy() for x in target_data]
@@ -256,21 +246,18 @@ class Classifier(pl.LightningModule):
             target_labels = np.concatenate(
                 [x["labels"].squeeze().cpu().numpy() for x in target_data]
             )
-            # self.writer.add_embedding(target_embeddings, metadata=target_labels, global_step=self.global_step, tag="target")
+            self.writer.add_embedding(target_embeddings, metadata=target_labels, global_step=self.global_step, tag="target")
 
     def on_train_end(self) -> None:
         self.writer.close()
         return super().on_train_end()
 
     def test_step(self, batch, batch_idx):
-        print("starting final evaluation")
         self.validation_step(batch, batch_idx, 1)
-        print("end final evaluation")
 
     def test_epoch_end(self, outputs):
         target_accuracy = self.valid_acc_target.compute().item()
-        print("TARGET:", target_accuracy)
-        self.log("final_accuracy", target_accuracy)
+        print("final_accuracy", target_accuracy)
 
     def on_save_checkpoint(self, checkpoint):
         checkpoint["best_accuracy_target"] = self.best_accuracy_target

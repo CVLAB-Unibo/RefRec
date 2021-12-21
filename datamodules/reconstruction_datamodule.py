@@ -24,22 +24,22 @@ def collate_fn(list_data):
     }
 
 class DataModule(pl.LightningDataModule):
-    def __init__(self, cfg):
+    def __init__(self):
         super().__init__()
         self.files = []
 
         self.train_ds = Dataset(
-            hcfg("dataset_source.name"),
+            hcfg("dataset_source"),
             "train",
         )
 
         self.val_ds_source = Dataset(
-            hcfg("dataset_source.name"),
+            hcfg("dataset_source"),
             "test"
         )
 
         self.val_ds_target = Dataset(
-            hcfg("dataset_target.name"),
+            hcfg("dataset_target"),
             "test"
         )
         

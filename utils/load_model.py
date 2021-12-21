@@ -12,7 +12,7 @@ o3d.utility.set_verbosity_level(o3d.utility.VerbosityLevel.Error)
 
 #%%
 
-root = Path("../logs/m_2_sc_rec")
+root = Path("logs/m_2_sc_rec")
 ckpt_path = root / "checkpoint/last.ckpt"
 run_file_path = root / "run.yaml"
 name = "m_2_sc_rec"
@@ -23,6 +23,7 @@ entity = "3dv"
 @hmain(base_cfg_dir=Path("cfg"), run_cfg_file=Path(run_file_path), create_out_dir=False, parse_cmd_line=False)
 def main():
     cfg = get_cfg_copy()
+    print(cfg)
     run = wandb.init(
                 job_type="model",
                 project=project_name,

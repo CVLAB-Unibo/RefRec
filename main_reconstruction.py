@@ -32,7 +32,7 @@ def main():
         dir=get_out_dir(),
     )
 
-    dm = DataModule(cfg)
+    dm = DataModule()
     wandb_logger = WandbLogger(
         project=hcfg("project_name"), name=run_name, save_dir=get_out_dir()
     )
@@ -69,11 +69,7 @@ def main():
         get_run_name(), 
         type="model",
         description=hcfg("net.name"),
-        metadata={
-            "problem": "reconstruction",
-            "net": hcfg("net.name"), 
-            "run": get_run_name()
-            })
+        metadata=cfg)
 
     model_artifact.add_file(checkpoint_callback.last_model_path)
     run.log_artifact(model_artifact)
