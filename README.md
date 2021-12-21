@@ -9,7 +9,7 @@ Official repository for "RefRec: Pseudo-labels Refinement via Shape Reconstructi
 
 
 ## Requirements
-We rely on several libraries: [Pytorch-lightning](https://github.com/PyTorchLightning/pytorch-lightning), [Weight&Biases](https://docs.wandb.ai/), [Hesiod](https://github.com/lykius/hesiod)
+We rely on several libraries: [Pytorch-lightning](https://github.com/PyTorchLightning/pytorch-lightning), [Weight & Biases](https://docs.wandb.ai/), [Hesiod](https://github.com/lykius/hesiod)
 
 To run the code, please follow the instructions below.
 

@@ -232,7 +232,6 @@ def main():
     for c, protos_class_c in enumerate(prototypes):
         pro_class_c = torch.stack(protos_class_c, dim=0)
         mean_protoypes[c] = pro_class_c.mean(dim=0)
-    breakpoint()
     np.save(hcfg("prototypes_path"), mean_protoypes.cpu().numpy())
 
     selected = filter_data(predictions.clone(), probs.clone(), p, cfg["num_classes"])
