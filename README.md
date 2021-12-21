@@ -7,18 +7,22 @@ Official repository for "RefRec: Pseudo-labels Refinement via Shape Reconstructi
 
 [Adriano Cardace](https://www.unibo.it/sitoweb/adriano.cardace2) - [Riccardo Spezialetti](https://www.unibo.it/sitoweb/riccardo.spezialetti) - [Pierluigi Zama Ramirez](https://pierlui92.github.io/) - [Samuele Salti](https://vision.deis.unibo.it/ssalti/) - [Luigi Di Stefano](https://www.unibo.it/sitoweb/luigi.distefano/)
 
-Sill work in progress........
 
 ## Requirements
-To run the code please follow the instructions below.
+To run the code, please follow the instructions below.
+
+1) install pytorchEMD following https://github.com/daerduoCarey/PyTorchEMD
+
+2) install required dependencies
 
 ```bash
 python -m venv env
 pip install -r requirements.txt
 source env/bin/activate
-install pytorchEMD following https://github.com/daerduoCarey/PyTorchEMD
 ```
 
-## Load datasets on W&B server
+## Dowdnload and load datasets on W&B server (Registration required)
 unzip data/
 ./load_data.sh
+
+Sill work in progress........
