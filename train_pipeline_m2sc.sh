@@ -21,3 +21,18 @@ python main.py logs/self_train_m2sc/run.yaml \
                                     --prototypes_path=$prototypes_path
                                     --dataset_source=$easy_split
                                     --dataset_hard=$hard_split
+
+python main.py logs/self_train_m2sc/run.yaml \
+                                    --prototypes_path=$prototypes_path
+                                    --dataset_source=$easy_split
+                                    --dataset_hard=$hard_split
+
+python main.py logs/self_train_m2sc/run.yaml \
+                                    --prototypes_path=$prototypes_path
+                                    --dataset_source=$easy_split
+                                    --dataset_hard=$hard_split
+
+python main.py logs/self_train_m2sc/run.yaml \
+                                    --prototypes_path=$prototypes_path
+                                    --dataset_source=$easy_split
+                                    --dataset_hard=$hard_split
