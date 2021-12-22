@@ -22,7 +22,7 @@ python -m pip install --upgrade pip
 pip install torch==1.8.1+cu111 torchvision==0.9.1+cu111 -f https://download.pytorch.org/whl/torch_stable.html
 pip install -r requirements.txt
 ```
-2) Install pytorchEMD following https://github.com/daerduoCarey/PyTorchEMD
+2) Install pytorchEMD following https://github.com/daerduoCarey/PyTorchEMD and https://github.com/daerduoCarey/PyTorchEMD/issues/6 for latest versions of Torch
 
 
 ## Dowdnload and load datasets on W&B server (Registration required)
