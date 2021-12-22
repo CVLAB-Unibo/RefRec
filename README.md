@@ -19,8 +19,8 @@ To run the code, please follow the instructions below.
 
 ```bash
 python -m venv env
-pip install -r requirements.txt
 source env/bin/activate
+pip install -r requirements.txt
 ```
 
 ## Dowdnload and load datasets on W&B server (Registration required)
