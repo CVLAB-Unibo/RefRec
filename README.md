@@ -13,15 +13,17 @@ We rely on several libraries: [Pytorch-lightning](https://github.com/PyTorchLigh
 
 To run the code, please follow the instructions below.
 
-1) install pytorchEMD following https://github.com/daerduoCarey/PyTorchEMD
-
-2) install required dependencies
+1) install required dependencies
 
 ```bash
 python -m venv env
 source env/bin/activate
+python -m pip install --upgrade pip
+pip install torch==1.8.1+cu111 torchvision==0.9.1+cu111 -f https://download.pytorch.org/whl/torch_stable.html
 pip install -r requirements.txt
 ```
+2) Install pytorchEMD following https://github.com/daerduoCarey/PyTorchEMD
+
 
 ## Dowdnload and load datasets on W&B server (Registration required)
 unzip data/
