@@ -26,7 +26,8 @@ pip install -r requirements.txt
 
 
 ## Download and load datasets on W&B server (Registration required)
-Reqeuest dataset access at https://drive.google.com/file/d/14mNtQTPA-b9_qzfHiadUIc_RWvPxfGX_/view?usp=sharing
+Reqeuest dataset access at https://drive.google.com/file/d/14mNtQTPA-b9_qzfHiadUIc_RWvPxfGX_/view?usp=sharing.
+
 The dataset is the same provided by the original authours at https://github.com/canqin001/PointDAN. For convenience we provide a preprocessed version used in this work.
 To train the reconstruction network, we need to merge two dataset. Then, load all the required dataset to the wandb server:
 
