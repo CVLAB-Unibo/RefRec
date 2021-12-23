@@ -167,7 +167,6 @@ class Pointnet(nn.Module):
 
     def forward(self, x, embeddings=False, target=False):
         feature = self.encoder(x)
-        feature, _ = torch.max(feature, dim=2, keepdim=False)
         x = feature.squeeze()#batchsize*1024
 
         if target and self.target_cls:

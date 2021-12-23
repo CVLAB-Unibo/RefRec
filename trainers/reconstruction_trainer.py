@@ -14,7 +14,7 @@ class Reconstruction_trainer(pl.LightningModule):
     def __init__(self, dm, device):
         super().__init__()
 
-        self.net = get_model(device)
+        self.net = get_model(device, hcfg("net.name"), hcfg("restore_weights"))
         self.dm = dm
         self.save_hyperparameters(get_cfg_copy())
         self.log_prediction = True

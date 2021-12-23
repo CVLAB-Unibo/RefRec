@@ -16,7 +16,7 @@ class Classifier(pl.LightningModule):
     def __init__(self, dm, device):
         super().__init__()
 
-        self.net = get_model(device)
+        self.net = get_model(device, hcfg("net.name"), hcfg("restore_weights"))
         self.dm = dm
         self.best_accuracy_source = 0
         self.best_accuracy_target = 0

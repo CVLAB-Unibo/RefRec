@@ -140,20 +140,10 @@ def main():
     source_domain = hcfg("dataset_source")
     target_domain = hcfg("dataset_target")
     restore_weights = hcfg("restore_weights")
-    
-    if source_domain=="modelnet":
-        s = "m"
-    elif source_domain=="shapenet":
-        s = "s"
-    elif source_domain=="scannet":
-        s = "sc"
 
-    if target_domain=="modelnet":
-        t = "m"
-    elif target_domain=="shapenet":
-        t = "s"
-    elif target_domain=="scannet":
-        t = "sc"
+    domains = {"modelnet":"m", "shapenet":"s", "scannet":"sc"}
+    s = domains[source_domain]
+    t = domains[target_domain]
 
     project_name = s+"2"+t
     dataset_name_easy_split = hcfg("easy_split")
@@ -190,8 +180,12 @@ def main():
     dataloader_source_val, _ = dm.val_dataloader()
 
     categories = dm.train_ds.categories
-    model = get_model(device, )
+
+    model_rec = get_model(device, "reconstruction", hcfg("restore_weights_rec"))
+    model_rec.to(device).eval()
+    model = get_model(device, hcfg("net.name"), hcfg("restore_weights"))
     model.to(device).eval()
+
     valid_acc_target = Accuracy(compute_on_step=False)
 
     coords = torch.zeros((0, 2048, 3))
@@ -211,8 +205,9 @@ def main():
         paths_b = batch["paths"]
 
         with torch.no_grad():
-            features, out_t = model(coords_b.to(device)[:, :1024], embeddings=True)
-            embeddings = torch.cat([embeddings, features.cpu()], dim=0)
+            _, out_t = model(coords_b.to(device)[:, :1024], embeddings=True)
+            features, _ = model_rec(coords_b.to(device)[:, :1024])
+            embeddings = torch.cat([embeddings, features.squeeze().cpu()], dim=0)
 
             logits = F.softmax(out_t, dim=1)
             probs_b, predictions_b = torch.max(logits, dim=1)
@@ -223,8 +218,9 @@ def main():
             labels = torch.cat([labels, labels_b], dim=0)
             valid_acc_target(F.softmax(logits.cpu(), dim=1), labels_b.long())
             paths.extend(paths_b)
+            
             for e, pl in enumerate(predictions_b):
-                prototypes[pl].append(features[e])
+                prototypes[pl].append(features[e].squeeze())
 
     # print(valid_acc_target.compute())
     
@@ -236,9 +232,9 @@ def main():
 
     selected = filter_data(predictions.clone(), probs.clone(), p, cfg["num_classes"])
     
-    predictions_uncertain = predictions[~selected]
+    # predictions_uncertain = predictions[~selected]
     coords_uncertain = coords[~selected]
-    labels_uncertain = labels[~selected]
+    # labels_uncertain = labels[~selected]
     embeddings_uncertain = embeddings[~selected]
 
     coords = coords[selected]

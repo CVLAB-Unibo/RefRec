@@ -62,7 +62,7 @@ class DataModule(pl.LightningDataModule):
             num_workers=hcfg("num_workers"),
             collate_fn=self.collate,
             pin_memory=True,
-            # drop_last=True,
+            drop_last=True,
             worker_init_fn=worker_init_fn,
         )
         return train_dl_pl

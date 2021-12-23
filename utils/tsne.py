@@ -74,7 +74,7 @@ def main():
     for k, v in cfg.items():
         set_cfg(k, v)
     
-    model = get_model(device)
+    model = get_model(device, hcfg("net.name"), hcfg("restore_weights"))
     model.to(device).eval()
 
     cfg = get_cfg_copy()

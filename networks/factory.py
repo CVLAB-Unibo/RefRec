@@ -5,15 +5,15 @@ import torch
 import wandb
 import glob
 
-def get_model(device):
+def get_model(device, model_type="classification", restore_weights="null"):
 
-    if hcfg("net.name") == "reconstruction":
+    if model_type == "reconstruction":
         model = ReconstructionNet(device, feat_dims=hcfg("net.feat_dims"))
     else:
         model = Pointnet(num_class=hcfg("num_classes"), device=device, feat_dims=hcfg("net.feat_dims"), target_cls=hcfg("target_cls"))
 
-    if hcfg("restore_weights") != "null":
-        model_artifact = wandb.run.use_artifact(hcfg("restore_weights")+ ":latest", type='model')
+    if restore_weights != "null":
+        model_artifact = wandb.run.use_artifact(restore_weights+ ":latest", type='model')
         model_dir = model_artifact.download()
         model_paths = [path for path in glob.glob(model_dir+"/*.ckpt")] 
         saved_state_dict = torch.load(model_paths[0])

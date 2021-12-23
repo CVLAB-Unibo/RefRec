@@ -16,8 +16,8 @@ class Classifier(pl.LightningModule):
     def __init__(self, dm, device):
         super().__init__()
 
-        self.net = get_model(device)
-        self.ema = get_model(device)
+        self.net = get_model(device, hcfg("net.name"), hcfg("restore_weights"))
+        self.ema = get_model(device, hcfg("net.name"), hcfg("restore_weights"))
         self.dm = dm
         self.best_accuracy_source = 0
         self.best_accuracy_target = 0
@@ -60,9 +60,10 @@ class Classifier(pl.LightningModule):
     def on_train_start(self):
         self.writer = SummaryWriter(wandb.run.dir)
         self.net.apply(self.set_bn_eval)
-        self.protoypes = np.load(hcfg("prototypes_path"))
-        self.protoypes = torch.from_numpy(self.protoypes).to(device=self.device)
-        self.protoypes = F.normalize(self.protoypes, dim=1)
+        self.prototypes = np.load(hcfg("prototypes_path"))
+        self.prototypes = torch.from_numpy(self.prototypes).to(device=self.device)
+        self.prototypes = F.normalize(self.prototypes, dim=1)
+
         self.create_ema_model()
 
     def sigmoid_rampup(self, current, rampup_length):
@@ -106,21 +107,21 @@ class Classifier(pl.LightningModule):
             batch_target = next(self.dl_target_pl)
         
         coords_target = batch_target["coordinates"].to(self.device)
-        labels_target = batch_target["labels"].to(self.device)
+        pl_labels_target = batch_target["labels"].to(self.device)
         self.train_acc(F.softmax(logits, dim=1), labels)
         with torch.no_grad():
             _, output_t = self.ema(coords_target, embeddings=True, target=True)
             _, output_source_branch_ema = self.ema(coords_target, embeddings=True, target=False)
         predictions_teacher = torch.argmax(output_t+output_source_branch_ema, dim=1)
         embeddings_s, output_s = self.net(coords_target, embeddings=True, target=True)
-        embeddings_s = F.normalize(embeddings_s, dim=1)
-        diff_proto = embeddings_s.unsqueeze(1).repeat(1,hcfg("num_classes"),1).detach() - self.protoypes
+        embeddings_s = F.normalize(embeddings_s, dim=1).squeeze(-1)
+        diff_proto = embeddings_s.unsqueeze(1).repeat(1,hcfg("num_classes"),1).detach() - self.prototypes
         norms = torch.linalg.norm(diff_proto, dim=2)
         target_weights = F.softmax(-norms, dim=1)
         target_weights = [w[predictions_teacher[i]] for i, w in enumerate(target_weights)]
         target_weights = torch.tensor(target_weights, device=self.device)
 
-        target_loss = (self.loss_fn_target(output_s, labels_target)*(target_weights)).mean()*(1-weight) + (self.loss_fn_target(output_s, predictions_teacher)*(target_weights)).mean()*weight
+        target_loss = (self.loss_fn_target(output_s, pl_labels_target)*(target_weights)).mean()*(1-weight) + (self.loss_fn_target(output_s, predictions_teacher)*(target_weights)).mean()*weight
         loss += target_loss
 
         if self.global_step % 500 == 0 and self.global_step != 0:
@@ -128,7 +129,6 @@ class Classifier(pl.LightningModule):
                 {
                     "train/loss": loss_source.item(),
                     "train/target_loss": target_loss.item(),
-                    # "train/centroid_loss_target": centroid_loss_target.item(),
                     "train/weight": weight
                 }, commit=False, step=self.global_step
             )
