@@ -26,7 +26,21 @@ pip install -r requirements.txt
 
 
 ## Dowdnload and load datasets on W&B server (Registration required)
-unzip data/
-./load_data.sh
+Reqeuest dataset access at https://drive.google.com/file/d/14mNtQTPA-b9_qzfHiadUIc_RWvPxfGX_/view?usp=sharing
+The dataset is the same provided by the original authours at https://github.com/canqin001/PointDAN. For convenience we provide a preprocessed version used in this work.
 
-Sill work in progress........
+To train the reconstruction network merge two datasets. Then, load all the required datasets on wandb server. For example for modelnet->scannet execute the following commands:
+
+```bash
+unzip PointDA_aligned.zip -d data/
+cd data
+cp modelent modelnet_scannet 
+rsync -av scannet modelnet_scannet
+./load_data.sh
+```
+
+Then you can simply train the whole pipeline with 
+```bash
+./train_pipeline_m2sc.sh
+```
+
