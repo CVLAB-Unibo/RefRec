@@ -32,6 +32,7 @@ The dataset is the same provided by the original authours at https://github.com/
 To train the reconstruction network, we need to merge two dataset. Then, load all the required dataset to the wandb server:
 
 ```bash
+mkdir data
 unzip PointDA_aligned.zip -d data/
 cd data
 cp modelent modelnet_scannet 
