@@ -25,7 +25,7 @@ pip install -r requirements.txt
 2) Install pytorchEMD following https://github.com/daerduoCarey/PyTorchEMD and https://github.com/daerduoCarey/PyTorchEMD/issues/6 for latest versions of Torch
 
 
-## Dowdnload and load datasets on W&B server (Registration required)
+## Download and load datasets on W&B server (Registration required)
 Reqeuest dataset access at https://drive.google.com/file/d/14mNtQTPA-b9_qzfHiadUIc_RWvPxfGX_/view?usp=sharing
 The dataset is the same provided by the original authours at https://github.com/canqin001/PointDAN. For convenience we provide a preprocessed version used in this work.
 
