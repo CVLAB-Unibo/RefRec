@@ -1,0 +1,28 @@
+'***hesiod_out_dir***': logs/m_2_sc_rec
+entity: 3dv
+aug: true
+dataset_hard: 'null'
+dataset_source: 'modelnet_scannet'
+dataset_target: 'scannet'
+epochs: 1000
+gpu: [0]
+losses: {loss_fn: chamfer}
+lr: 0.0001
+max_weight: 100
+mean_teacher: false
+net: {feat_dims: 1024, name: reconstruction}
+num_classes: 10
+num_workers: 16
+occlusions: true
+optimizers: {optimizer_name: adamw, weight_decay: 1e-06}
+pc_input_num: 1024
+project_name: m2sc
+restore_weights: 'null'
+run_name: m_2_sc_rec
+sampling: uniform
+test: false
+train_batch_size: 64
+val_batch_size: 64
+val_split: false
+warm_up: 20
+weight_emd: 0.05

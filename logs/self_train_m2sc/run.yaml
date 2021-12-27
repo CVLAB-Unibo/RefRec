@@ -1,0 +1,29 @@
+'***hesiod_out_dir***': logs/self_train_m2sc
+entity: 3dv
+aug: true
+dataset_hard: 'm2sc_hard_split'
+dataset_source: 'm2sc_easy_split'
+dataset_target: 'scannet'
+epochs: 25
+feat_dims: 1024
+gpu: [0]
+losses: {loss_fn: crossentropy}
+lr: 0.0001
+max_weight: 1
+mean_teacher: true
+net: {name: pointnet, feat_dims: 1024}
+num_classes: 10
+num_workers: 12
+occlusions: true
+optimizers: {optimizer_name: adamw, weight_decay: 0.0001}
+pc_input_num: 1024
+project_name: m2sc
+restore_weights: m_2_sc_rec
+run_name: self_train_m2sc
+sampling: uniform
+target_cls: true
+test: false
+train_batch_size: 16
+val_batch_size: 256
+warm_up: 25
+short_val_split: True
